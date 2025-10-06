@@ -46,7 +46,7 @@ export const dashboardAPI = {
     apiCall(`/admin/classes-table?page=${page}&limit=${limit}`),
   getCurrentLoans: () => apiCall("/admin/current-loans"),
   getHistoryLog: (page = 1, limit = 10) =>
-    apiCall(`/admin/classes-table?page=${page}&limit=${limit}`),
+    apiCall(`/admin/history-log?page=${page}&limit=${limit}`),
 };
 
 export const borrowAPI = {
