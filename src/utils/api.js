@@ -77,12 +77,11 @@ export const borrowAPI = {
       body: JSON.stringify(reason),
     }),
 
-  directLending: (lendingData) => {
+  directLending: (lendingData) =>
     apiCall("/borrow/direct-lending", {
       method: "POST",
       body: JSON.stringify(lendingData),
-    });
-  },
+    }),
 };
 
 export const inventoryAPI = {

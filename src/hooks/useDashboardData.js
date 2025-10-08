@@ -53,7 +53,7 @@ export const useDashboardData = () => {
   };
 
   useEffect(() => {
-    fetchDashboardData;
+    fetchDashboardData();
   }, []);
 
   const refreshPendingRequests = async () => {

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import Header from "./components/Header.jsx";
-import Sidebar from "./components/Sidebar.jsx";
-import Breadcrumbs from "./components/Breadcrumb.jsx";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dashboardAPI, dropdownAPI } from "../utils/api.js";
+import Header from "./components/Header.jsx";
+import Sidebar from "./components/Sidebar.jsx";
 
 const AdminClassLog = () => {
   const navigate = useNavigate();
@@ -44,6 +43,8 @@ const AdminClassLog = () => {
     } catch (error) {
       console.error("Error fetching class data:", error);
       setError(error.message || "Failed to load class data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,19 +124,21 @@ const AdminClassLog = () => {
   }
 
   if (error) {
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 flex items-center justify-center h-64">
-            <div className="text-center">
-              <p>Error</p>
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 flex items-center justify-center h-64">
+              <div className="text-center">
+                <p>Error: {error}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>;
+    );
   }
 
   // Main Class List View Component

@@ -4,7 +4,7 @@ import { classAPI } from "../utils/api";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 
-export default function ClassLogDetail() {
+const ClassLogDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ export default function ClassLogDetail() {
 
   // state for edit modal
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [_editForm, setEditForm] = useState({
     lecturer: "",
     room: "",
   });
@@ -70,8 +70,10 @@ export default function ClassLogDetail() {
 
   useEffect(() => {
     const fetchClassDetails = async () => {
+      if (!id) return;
+
       try {
-        setLoading(false);
+        setLoading(true);
         setError(null);
         const response = await classAPI.getClassDetails(id);
         const data = response.data;
@@ -98,11 +100,9 @@ export default function ClassLogDetail() {
       } finally {
         setLoading(false);
       }
-
-      if (id) {
-        fetchClassDetails();
-      }
     };
+
+    fetchClassDetails();
   }, [id]);
 
   // const getStatusColor = (status) => {
@@ -118,6 +118,64 @@ export default function ClassLogDetail() {
   //       return "text-gray-600 bg-gray-100";
   //   }
   // };
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header searchPlaceholder="search borrowers..." />
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading class details...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header searchPlaceholder="search borrowers..." />
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="mt-4 text-gray-600">
+                  Failed to load class details
+                </p>
+                <p className="text-gray-600 text-sm mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!classData) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header searchPlaceholder="search borrowers..." />
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="mt-4 text-gray-600">No class data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -275,4 +333,5 @@ export default function ClassLogDetail() {
       )}
     </div>
   );
-}
+};
+export default ClassLogDetail;
