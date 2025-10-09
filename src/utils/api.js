@@ -109,7 +109,7 @@ export const inventoryAPI = {
 
 export const classAPI = {
   getClasses: () => apiCall("/admin/classes-overview"),
-  getClassDetails: (id) => apiCall(`/class/${id}`),
+  getClassDetails: (id) => apiCall(`/admin/classes/${id}`),
 };
 
 export const dropdownAPI = {
@@ -117,4 +117,6 @@ export const dropdownAPI = {
   getRooms: () => apiCall("/admin/rooms"),
   getLecturers: () => apiCall("/admin/lecturers"),
   getProgramStudies: () => apiCall("/admin/program-studies"),
+  getActive: () => apiCall("/admin/schedule-active"),
+  getAvailable: () => apiCall("/inventory/available"),
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { inventoryAPI } from "../utils/api";
+import InventoryModal from "./components/InventoryModal";
 
 const AdminInventory = () => {
   const [inventoryData, setInventoryData] = useState([]);
@@ -50,14 +51,6 @@ const AdminInventory = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const resetForm = () => {
     setFormData({
       barcode: "",
@@ -70,24 +63,6 @@ const AdminInventory = () => {
       tanggal_pembelian: "",
       letak_barang: "",
     });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingItem) {
-        await inventoryAPI.update(editingItem.id_barang, formData);
-      } else {
-        await inventoryAPI.create(formData);
-      }
-      setShowModal(false);
-      setEditingItem(null);
-      resetForm();
-      fetchInventoryData();
-    } catch (error) {
-      console.error("Error saving item:", error);
-      alert("Failed to save item: " + error.message);
-    }
   };
 
   const handleEdit = (item) => {
@@ -361,185 +336,15 @@ const AdminInventory = () => {
       </div>
       {/* Modal for adding/editing inventory item */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {editingItem
-                    ? "Edit inventory item"
-                    : "Add new inventory item"}
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowModal(false);
-                    setEditingItem(null);
-                    resetForm();
-                  }}
-                  className="w-6 h-6 flex items-center justify-center text-gray-400"
-                >
-                  x
-                </button>
-              </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Barcode
-                  </label>
-                  <input
-                    type="text"
-                    name="barcode"
-                    value={formData.barcode}
-                    onChange={handleInputChange}
-                    placeholder="Enter barcode"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Item type/name
-                  </label>
-                  <input
-                    type="text"
-                    name="tipe_nama_barang"
-                    value={formData.tipe_nama_barang}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Laptop, Projector"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleInputChange}
-                      placeholder="e.g., ASUS"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Model
-                    </label>
-                    <input
-                      type="text"
-                      name="model"
-                      value={formData.model}
-                      onChange={handleInputChange}
-                      placeholder="e.g., Vivobook x441"
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Serial Number
-                  </label>
-                  <input
-                    type="text"
-                    name="serial_number"
-                    value={formData.serial_number}
-                    onChange={handleInputChange}
-                    placeholder="Enter serial number"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Lab komputer 1"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                  >
-                    <option value="tersedia">Available</option>
-                    <option value="dipinjam">Borrowed</option>
-                    <option value="diperbaiki">Under Repair</option>
-                    <option value="rusak">Damaged</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Purchase Date
-                  </label>
-                  <input
-                    type="date"
-                    name="tanggal_pembelian"
-                    value={formData.tanggal_pembelian}
-                    onChange={handleInputChange}
-                    placeholder="Enter serial number"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Description
-                  </label>
-                  <textarea
-                    name="deskripsi"
-                    value={formData.deskripsi}
-                    onChange={handleInputChange}
-                    placeholder="Additional description"
-                    rows="3"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div className="flex flex-col space-y-2 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingItem(null);
-                      resetForm();
-                    }}
-                    className="w-full py-2.5 px-4 bg-white text-gray-700 border border-gray-300 rounded-md font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 px-4 bg-white text-gray-700 border border-gray-300 rounded-md font-medium"
-                    style={{ backgroundColor: "#048494" }}
-                  >
-                    {editingItem ? "Update item " : "Create item"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <InventoryModal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setEditingItem(null);
+          }}
+          editingItem={editingItem}
+          onSuccess={() => window.location.reload()}
+        />
       )}
     </div>
   );

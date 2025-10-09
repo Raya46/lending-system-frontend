@@ -262,7 +262,7 @@ const AdminClassLog = () => {
                   Active Loans
                 </p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {statistic.activeLoans}
+                  {statistic.totalActiveLoans}
                 </p>
               </div>
             </div>

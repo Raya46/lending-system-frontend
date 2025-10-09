@@ -94,6 +94,7 @@ export default function BorrowPage() {
         isOpen={lendModal}
         onClose={() => navigate("/")}
         onSubmit={handleBorrowSubmit}
+        borrowerData={borrowerData}
         modalType={modalType}
         setModalType={setModalType}
       />

@@ -15,24 +15,24 @@ const ClassLogDetail = () => {
   const [error, setError] = useState(null);
 
   // state for edit modal
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [_editForm, setEditForm] = useState({
-    lecturer: "",
-    room: "",
-  });
+  // const [showEditModal, setShowEditModal] = useState(false);
+  // const [_editForm, setEditForm] = useState({
+  //   lecturer: "",
+  //   room: "",
+  // });
   // const [updating, setUpdating] = useState(false);
 
   // state for dropdown data
   // const [lecturers, setLecturers] = useState([]);
   // const [rooms, setRooms] = useState([]);
 
-  const handleEditClass = () => {
-    setEditForm({
-      lecturer: classData.lecturer,
-      room: classData.room,
-    });
-    setShowEditModal(true);
-  };
+  // const handleEditClass = () => {
+  //   setEditForm({
+  //     lecturer: classData.lecturer,
+  //     room: classData.room,
+  //   });
+  //   setShowEditModal(true);
+  // };
 
   // const handleUpdateClass = async (e) => {
   //   e.preventDefault();
@@ -192,12 +192,6 @@ const ClassLogDetail = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={handleEditClass}
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md "
-                >
-                  Edit class
-                </button>
-                <button
                   onClick={() => navigate("/class-log")}
                   className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md "
                 >
@@ -326,11 +320,6 @@ const ClassLogDetail = () => {
           </div>
         </div>
       </div>
-      {showEditModal && (
-        <div>
-          <p>edit</p>
-        </div>
-      )}
     </div>
   );
 };

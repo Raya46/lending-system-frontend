@@ -29,37 +29,37 @@ const StudentLendModal = ({
     id_barang: "",
   });
 
-  useEffect(() => {
-    const loadDropdownData = async () => {
-      try {
-        const [
-          lecturersResponse,
-          classesResponse,
-          programStudiesResponses,
-          schedulesResponses,
-          availableItemsResponses,
-        ] = await Promise.all([
-          dropdownAPI.getLecturers(),
-          dropdownAPI.getClasses(),
-          dropdownAPI.getProgramStudies(),
-          dropdownAPI.getActive(),
-          dropdownAPI.getAvailable(),
-        ]);
+  const loadDropdownData = async () => {
+    console.log("halo");
+    try {
+      const [
+        lecturersResponse,
+        classesResponse,
+        programStudiesResponses,
+        schedulesResponses,
+        availableItemsResponses,
+      ] = await Promise.all([
+        dropdownAPI.getLecturers(),
+        dropdownAPI.getClasses(),
+        dropdownAPI.getProgramStudies(),
+        dropdownAPI.getActive(),
+        dropdownAPI.getAvailable(),
+      ]);
 
-        setLecturers(lecturersResponse.data || []);
-        setMataKuliah(classesResponse.data || []);
-        setProgramStudies(programStudiesResponses.data || []);
-        setSchedules(schedulesResponses.data || []);
-        setAvailableItems(availableItemsResponses.data || []);
-      } catch (error) {
-        console.error("Error loading dropdown data: ", error);
-      }
-    };
-
-    if (isOpen) {
-      loadDropdownData;
+      setLecturers(lecturersResponse.data);
+      setMataKuliah(classesResponse.data);
+      setProgramStudies(programStudiesResponses.data);
+      setSchedules(schedulesResponses.data);
+      setAvailableItems(availableItemsResponses.data);
+      console.log(lecturersResponse);
+    } catch (error) {
+      console.error("Error loading dropdown data: ", error);
     }
-  }, [isOpen]);
+  };
+
+  useEffect(() => {
+    loadDropdownData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
