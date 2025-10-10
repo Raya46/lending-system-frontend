@@ -32,7 +32,7 @@ export default function BorrowPage() {
     // listener for borrow completion
     socket?.on("borrow_completed", (data) => {
       console.log("Borrow completed: ", data);
-      setWaitingForAcceptance(false);
+      setWaitingForBarcodeScan(false);
       setCompletedTransaction(data);
       setTimeout(() => {
         navigate("/");
@@ -46,7 +46,7 @@ export default function BorrowPage() {
     });
     // listener for auto-rejection
     socket?.on("borrow_auto_rejected", (data) => {
-      console.log("borrow auto-rejected: ", data);
+      console.log("borrow auto rejected: ", data);
       alert(`Permintaan peminjaman otomatis ditolak: ${data.reason}`);
       navigate("/");
     });
@@ -238,15 +238,15 @@ export default function BorrowPage() {
                 <div className="bg-gray-50 p-3 rounded-md mb-4">
                   <p className="text-sm text-gray-700">
                     <strong>Barang: </strong>
-                    {currentTransaction?.transaction?.tipe_nama_barang}
+                    {completedTransaction.transaction?.tipe_nama_barang}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Brand: </strong>
-                    {currentTransaction?.transaction?.brand}
+                    {completedTransaction.transaction?.brand}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Model: </strong>
-                    {currentTransaction?.transaction?.model}
+                    {completedTransaction.transaction?.model}
                   </p>
                 </div>
                 <p className="text-sm text-gray-500">

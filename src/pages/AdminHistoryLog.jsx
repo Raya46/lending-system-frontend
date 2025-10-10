@@ -20,8 +20,8 @@ const AdminHistoryLog = () => {
       setError(null);
       const data = await dashboardAPI.getHistoryLog(currentPage, itemsPerPage);
       if (data.success) {
-        setHistoryData(data.data || []);
-        setTotalPages(data.paginaion?.total_pages || 1);
+        setHistoryData(data.data);
+        setTotalPages(data.pagination?.total_pages);
       } else {
         throw new Error(data.message || "Failed to load history data");
       }
