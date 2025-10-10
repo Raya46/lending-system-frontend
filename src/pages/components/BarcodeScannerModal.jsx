@@ -140,7 +140,8 @@ export default function BarcodeScannerModal({
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 py-2.5 bg-gray-200 text-gray-700 transition-colors font-medium"
+                  disabled={loading}
+                  className="flex-1 py-2.5 px-4 text-white rounded-md transition-all font-medium disabled:opacity-50"
                   style={{ backgroundColor: "#048494" }}
                 >
                   {loading ? "Processing..." : "Confirm"}

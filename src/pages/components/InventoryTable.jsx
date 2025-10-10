@@ -1,4 +1,9 @@
-export default function InventoryTable({ inventoryData }) {
+export default function InventoryTable({
+  inventoryData,
+  currentPage,
+  totalPages,
+  onPageChange,
+}) {
   const getAvailabilityColor = (availability) => {
     switch (availability) {
       case "Low stock":
@@ -11,6 +16,7 @@ export default function InventoryTable({ inventoryData }) {
         return "text-gray-600";
     }
   };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="px-6 py-4">
@@ -49,9 +55,27 @@ export default function InventoryTable({ inventoryData }) {
       </div>
 
       <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-        <span>Previous</span>
-        <span>Page 1 of 10</span>
-        <span>Next</span>
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`hover:text-gray-700 ${
+            currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`hover:text-gray-700 ${
+            currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

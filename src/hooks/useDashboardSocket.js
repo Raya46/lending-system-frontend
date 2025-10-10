@@ -19,28 +19,14 @@ export const useDashboardSocket = (
     });
 
     // listen for request acceptance
-    socket?.on("request_accepted", (data) => {
-      // udpate request status to accepted
-      setDashboardData((prev) => ({
-        ...prev,
-        pendingRequests:
-          prev.pendingRequests?.map((req) =>
-            req.peminjaman_id === data.transaction_id
-              ? { ...req, status_peminjaman: "accepted" }
-              : req
-          ) || [],
-      }));
-    });
-
-    // listening for student arrival
     socket?.on("student_arrived", (data) => {
-      // udpate request to show student has arrived
+      // update request status to accepted and student arrived
       setDashboardData((prev) => ({
         ...prev,
         pendingRequests:
           prev.pendingRequests?.map((req) =>
             req.peminjaman_id === data.transaction_id
-              ? { ...req, student_arrived: true }
+              ? { ...req, status_peminjaman: "accepted", student_arrived: true }
               : req
           ) || [],
       }));
@@ -48,6 +34,12 @@ export const useDashboardSocket = (
       alert(
         `Mahasiswa ${data.student_name} telah tiba. Siap untuk scan barcode`
       );
+    });
+
+    // listen for direct lending completion
+    socket?.on("direct_lending_completed", (data) => {
+      console.log("Direct lending completed:", data);
+      // No need to update pending requests as direct lending doesn't go through pending
     });
 
     // listen for request processing updates
@@ -76,10 +68,10 @@ export const useDashboardSocket = (
     // cleanup listeners on unmount
     return () => {
       socket?.off("new_borrow_request");
-      socket?.off("request_accepted");
       socket?.off("student_arrived");
       socket?.off("request_processed");
       socket?.off("borrow_auto_rejected");
+      socket?.off("direct_lending_completed");
     };
   }, [socket, joinAdminRoom, setDashboardData, refreshPendingRequests]);
 };

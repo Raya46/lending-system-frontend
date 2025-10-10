@@ -19,7 +19,7 @@ export const apiCall = async (endpoint, options = {}) => {
     const response = await fetch(url, config);
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || `HTTP error! statys: ${response.status}`);
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
     return data;
   } catch (error) {
@@ -39,7 +39,8 @@ export const authAPI = {
 export const dashboardAPI = {
   getTopLendingItems: () => apiCall("/admin/top-lending-items"),
   getLowStockItems: () => apiCall("/admin/low-stock-items"),
-  getInventoryData: () => apiCall("/admin/inventory"),
+  getInventoryData: (page = 1, limit = 10) =>
+    apiCall(`/admin/inventory?page=${page}&limit=${limit}`),
   getInventorySummary: () => apiCall("/admin/inventory-summary"),
   getClassesOverview: () => apiCall("/admin/classes-overview"),
   getClassesTable: (page = 1, limit = 10) =>
@@ -47,6 +48,16 @@ export const dashboardAPI = {
   getCurrentLoans: () => apiCall("/admin/current-loans"),
   getHistoryLog: (page = 1, limit = 10) =>
     apiCall(`/admin/history-log?page=${page}&limit=${limit}`),
+  importMahasiswa: (formData) => {
+    const token = localStorage.getItem("token");
+    return fetch(`${BASE_API_URL}/admin/import-excel`, {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    }).then((response) => response.json());
+  },
 };
 
 export const borrowAPI = {

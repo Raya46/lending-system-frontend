@@ -3,6 +3,9 @@ import { borrowAPI, dashboardAPI } from "../utils/api";
 import { useEffect } from "react";
 
 export const useDashboardData = () => {
+  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [dashboardData, setDashboardData] = useState({
     topLendingItems: [],
     lowStockItems: [],
@@ -13,7 +16,7 @@ export const useDashboardData = () => {
     error: null,
   });
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (page = currentPage) => {
     try {
       setDashboardData((prev) => ({ ...prev, loading: true, error: null }));
       const [
@@ -25,7 +28,7 @@ export const useDashboardData = () => {
       ] = await Promise.all([
         dashboardAPI.getTopLendingItems(),
         dashboardAPI.getLowStockItems(),
-        dashboardAPI.getInventoryData(),
+        dashboardAPI.getInventoryData(page, itemsPerPage),
         dashboardAPI.getInventorySummary(),
         borrowAPI.getPendingRequests(),
       ]);
@@ -42,6 +45,7 @@ export const useDashboardData = () => {
         loading: false,
         error: null,
       });
+      setTotalPages(inventoryResponse.pagination?.total_pages || 1);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       setDashboardData((prev) => ({
@@ -53,8 +57,14 @@ export const useDashboardData = () => {
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    fetchDashboardData(currentPage);
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const refreshPendingRequests = async () => {
     try {
@@ -73,5 +83,8 @@ export const useDashboardData = () => {
     setDashboardData,
     fetchDashboardData,
     refreshPendingRequests,
+    currentPage,
+    totalPages,
+    handlePageChange,
   };
 };

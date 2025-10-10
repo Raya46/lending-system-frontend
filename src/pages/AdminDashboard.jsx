@@ -23,8 +23,14 @@ const AdminDashboard = () => {
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
 
-  const { dashboardData, setDashboardData, refreshPendingRequests } =
-    useDashboardData();
+  const {
+    dashboardData,
+    setDashboardData,
+    refreshPendingRequests,
+    currentPage,
+    totalPages,
+    handlePageChange,
+  } = useDashboardData();
 
   // Function to determine modal type based on name input
   const handleLendClick = () => {
@@ -156,7 +162,12 @@ const AdminDashboard = () => {
         </div>
 
         {/* inventory table */}
-        <InventoryTable inventoryData={inventoryData} />
+        <InventoryTable
+          inventoryData={inventoryData}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={totalPages}
+        />
 
         {/* inventory summary */}
         <InventorySummary

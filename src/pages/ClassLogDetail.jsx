@@ -14,60 +14,6 @@ const ClassLogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // state for edit modal
-  // const [showEditModal, setShowEditModal] = useState(false);
-  // const [_editForm, setEditForm] = useState({
-  //   lecturer: "",
-  //   room: "",
-  // });
-  // const [updating, setUpdating] = useState(false);
-
-  // state for dropdown data
-  // const [lecturers, setLecturers] = useState([]);
-  // const [rooms, setRooms] = useState([]);
-
-  // const handleEditClass = () => {
-  //   setEditForm({
-  //     lecturer: classData.lecturer,
-  //     room: classData.room,
-  //   });
-  //   setShowEditModal(true);
-  // };
-
-  // const handleUpdateClass = async (e) => {
-  //   e.preventDefault();
-  //   setUpdating(true);
-  //   try {
-  //     const data = await classAPI.updateClass(id, editForm);
-  //     if (data.success) {
-  //       const classResponse = await classAPI.getClassDetails(id);
-  //       const newData = classResponse.data;
-  //       const stats = newData.statistics || {};
-  //       setClassData({
-  //         id: id,
-  //         name:
-  //           newData.class_info.kepanjangan_prodi ||
-  //           newData.class_info.nama_prodi,
-  //         lecturer: newData.class_info.lecturers,
-  //         room: newData.class_info.rooms,
-  //         totalBorrowers: stats.total_borrowers,
-  //         activeBorrowers: stats.active_borrowers,
-  //         completedBorrowers: stats.completed_borrowers,
-  //       });
-  //       setShowEditModal(false);
-  //       alert("Class information updated");
-  //     } else {
-  //       alert("failed to update class information" + data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating class:", error);
-  //   } finally {
-  //     setUpdating(false);
-  //   }
-  // };
-
-  // fetch class details
-
   useEffect(() => {
     const fetchClassDetails = async () => {
       if (!id) return;
@@ -104,20 +50,6 @@ const ClassLogDetail = () => {
 
     fetchClassDetails();
   }, [id]);
-
-  // const getStatusColor = (status) => {
-  //   switch (status) {
-  //     case "active":
-  //       return "text-green-600 bg-green-100";
-  //     case "completed":
-  //       return "text-blue-600 bg-blue-100";
-  //     case "overdue":
-  //       return "text-red-600 bg-red-100";
-
-  //     default:
-  //       return "text-gray-600 bg-gray-100";
-  //   }
-  // };
   if (loading) {
     return (
       <div className="flex h-screen bg-gray-50">

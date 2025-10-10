@@ -36,7 +36,7 @@ export const SocketProvider = ({ children }) => {
 
   const joinStudentRoom = (nim) => {
     if (socket) {
-      socket.emit("joint_student_room", nim);
+      socket.emit("join_student_room", nim);
     }
   };
 

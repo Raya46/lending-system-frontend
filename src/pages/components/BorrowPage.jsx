@@ -20,7 +20,7 @@ export default function BorrowPage() {
     if (borrowerData?.nim_mahasiswa) {
       joinStudentRoom(borrowerData.nim_mahasiswa);
     }
-  }, [borrowerData, joinStudentRoom]);
+  }, [borrowerData?.nim_mahasiswa, joinStudentRoom]);
 
   useEffect(() => {
     // listener fro borrow request acceptance
@@ -77,7 +77,6 @@ export default function BorrowPage() {
         nim_mahasiswa: formData.nim_mahasiswa,
       });
       setCurrentTransaction(response.data);
-      joinStudentRoom(formData.nim_mahasiswa);
       setLendModal(false);
       setWaitingForAcceptance(true);
 
