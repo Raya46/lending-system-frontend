@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import PEENJE from "../assets/PEENJE.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -33,11 +34,7 @@ const Sidebar = () => {
     <div className="w-64 bg-white h-screen shadow-sm border-r border-gray-200">
       <div className="p-4 flex flex-col h-full">
         <div className="flex items-center space-x-3 mb-8">
-          <img
-            src="./src/assets/PEENJE.png"
-            alt="PNJ Logo"
-            className="w-8 h-8 object-contain"
-          />
+          <img src={PEENJE} alt="PNJ Logo" className="w-8 h-8 object-contain" />
           <span className="font-semibold text-gray-900">Lending</span>
         </div>
 

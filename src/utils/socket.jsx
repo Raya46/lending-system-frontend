@@ -13,8 +13,17 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = io("http://localhost:3000", {
-      transports: ["websockets", "polling"],
+    // Gunakan URL backend yang di-deploy atau localhost untuk development
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL ||
+      "https://lending-system-backend.vercel.app";
+    const socketInstance = io(backendUrl, {
+      // Gunakan polling sebagai transport utama karena Vercel tidak mendukung WebSocket
+      transports: ["polling"],
+      // Timeout yang lebih singkat untuk polling
+      timeout: 20000,
+      // Interval polling yang lebih sering
+      forceNew: true,
     });
 
     socketInstance.on("connect", () => {

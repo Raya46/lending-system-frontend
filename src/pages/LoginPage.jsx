@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "../utils/api";
+import PEENJE from "./assets/PEENJE.png";
 
 export default function LoginPage() {
   const PNJLogo = () => (
     <>
       <img
-        src="./src/assets/PEENJE.png"
+        src={PEENJE}
         className="w-1000 h-1000 md:w-100 md:h-100 items-center justify-center"
       />
     </>
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const InventoryIcon = () => (
     <>
       <img
-        src="./src/assets/PEENJE.png"
+        src={PEENJE}
         className="w-10 h-10 md:w-18 md:h-18 object-contain mx-auto"
       />
     </>
