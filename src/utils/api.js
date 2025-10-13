@@ -1,4 +1,4 @@
-const BASE_API_URL = "https://lending-system-backend.vercel.app/api";
+const BASE_API_URL = "http://localhost:3001/api";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");

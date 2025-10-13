@@ -26,7 +26,7 @@ const ClassLogDetail = () => {
 
         // set class data from class_info
         const classInfo = data.class_info;
-        const stats = data.statistics;
+        const stats = data.statistics || {};
 
         setClassData({
           id: id,
@@ -34,12 +34,14 @@ const ClassLogDetail = () => {
           lecturer: classInfo.lecturers,
           room: classInfo.rooms,
           schedule: classInfo.schedules,
-          totalBorrowers: stats.total_borrowers,
-          activeBorrowers: stats.active_borrowers,
-          completedBorrowers: stats.completed_borrowers,
+          totalBorrowers: stats.total_borrowers || 0,
+          activeBorrowers: stats.active_borrowers || 0,
+          completedBorrowers: stats.completed_borrowers || 0,
         });
 
-        setBorrowers(data.borrowers);
+        console.log("Borrowers data for", id, ":", data.borrowers);
+        // Ensure borrowers is always an array
+        setBorrowers(Array.isArray(data.borrowers) ? data.borrowers : []);
       } catch (error) {
         console.error("Error fetching class details:", error);
         setError(error.message);
@@ -136,25 +138,25 @@ const ClassLogDetail = () => {
               <div>
                 <div className="text-sm text-gray-500">Lecturer</div>
                 <div className="font-medium text-gray-900">
-                  {classData.lecturer}
+                  {String(classData.lecturer || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Room</div>
                 <div className="font-medium text-gray-900">
-                  {classData.room}
+                  {String(classData.room || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Schedule</div>
                 <div className="font-medium text-gray-900">
-                  {classData.schedule}
+                  {String(classData.schedule || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Total Borrower</div>
                 <div className="font-medium text-gray-900">
-                  {classData.totalBorrowers}
+                  {String(classData.totalBorrowers || 0)}
                 </div>
               </div>
             </div>
@@ -168,7 +170,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Active Borrowers</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.activeBorrowers}
+                    {String(classData.activeBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -179,7 +181,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Completed</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.completedBorrowers}
+                    {String(classData.completedBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -190,7 +192,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Total items</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.totalBorrowers}
+                    {String(classData.totalBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -217,30 +219,49 @@ const ClassLogDetail = () => {
                 </thead>
                 <tbody>
                   {borrowers.length > 0 ? (
-                    borrowers.map((borrower, index) => (
-                      <tr key={borrower.nim || index}>
-                        <td>{borrower.student_name}</td>
-                        <td>{borrower.nim}</td>
-                        <td>
-                          {borrower.unreturned_items ||
-                            borrower.returned_items ||
-                            "No Items"}
-                        </td>
-                        <td>
-                          {borrower.borrower_type === "active_borrower"
-                            ? "active"
-                            : "inactive"}
-                        </td>
-                        <td>
-                          {borrower.last_borrow_time
-                            ? new Date(
-                                borrower.last_borrow_time
-                              ).toLocaleString()
-                            : "N/A"}
-                        </td>
-                        <td>{borrower.number_of_times_borrowing || 0} times</td>
-                      </tr>
-                    ))
+                    borrowers.map((borrower, index) => {
+                      // Debug log to see the exact borrower data
+                      console.log("Processing borrower:", borrower);
+
+                      // Safely convert all values to strings
+                      const studentName = borrower.student_name
+                        ? String(borrower.student_name)
+                        : "N/A";
+                      const nim = borrower.nim ? String(borrower.nim) : "N/A";
+                      const unreturnedItems =
+                        borrower.unreturned_items &&
+                        borrower.unreturned_items !== "null"
+                          ? String(borrower.unreturned_items)
+                          : null;
+                      const returnedItems =
+                        borrower.returned_items &&
+                        borrower.returned_items !== "null"
+                          ? String(borrower.returned_items)
+                          : null;
+                      const items =
+                        unreturnedItems || returnedItems || "No Items";
+                      const status =
+                        borrower.borrower_type === "active_borrower"
+                          ? "active"
+                          : "inactive";
+                      const lastBorrowTime = borrower.last_borrow_time
+                        ? new Date(borrower.last_borrow_time).toLocaleString()
+                        : "N/A";
+                      const borrowCount = borrower.number_of_times_borrowing
+                        ? String(borrower.number_of_times_borrowing)
+                        : "0";
+
+                      return (
+                        <tr key={nim || index}>
+                          <td>{studentName}</td>
+                          <td>{nim}</td>
+                          <td>{items}</td>
+                          <td>{status}</td>
+                          <td>{lastBorrowTime}</td>
+                          <td>{borrowCount} times</td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={6}>No borrowers found for this class</td>

@@ -15,8 +15,8 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     // Gunakan URL backend yang di-deploy atau localhost untuk development
     const backendUrl =
-      import.meta.env.VITE_BACKEND_URL ||
-      "https://lending-system-backend.vercel.app";
+      import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+    console.log("Connecting to backend at:", backendUrl);
     const socketInstance = io(backendUrl, {
       // Gunakan polling sebagai transport utama karena Vercel tidak mendukung WebSocket
       transports: ["polling"],
