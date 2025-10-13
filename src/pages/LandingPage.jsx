@@ -1,7 +1,7 @@
 // Landing Page
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import PEENJE from "./assets/PEENJE.png";
+import PEENJE from "../assets/PEENJE.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();

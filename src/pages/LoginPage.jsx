@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "../utils/api";
-import PEENJE from "./assets/PEENJE.png";
+import PEENJE from "../assets/PEENJE.png";
 
 export default function LoginPage() {
   const PNJLogo = () => (

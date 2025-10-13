@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import PEENJE from "../assets/PEENJE.png";
+import PEENJE from "../../assets/PEENJE.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
