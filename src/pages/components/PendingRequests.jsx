@@ -28,7 +28,7 @@ export default function PendingRequests({
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Student
+                  Borrower Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Program Studi
@@ -52,10 +52,12 @@ export default function PendingRequests({
                 <tr key={request.peminjaman_id} className="bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {request.nama_mahasiswa}
+                      {request.nama_peminjam}
                     </div>
                     <div className="text-sm text-gray-500">
-                      NIM: {request.nim}
+                      {request.nim
+                        ? `NIM: ${request.nim}`
+                        : `NIP: ${request.nip}`}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

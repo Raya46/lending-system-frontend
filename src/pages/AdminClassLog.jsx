@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { dashboardAPI } from "../utils/api.js";
 import Header from "./components/Header.jsx";
 import Sidebar from "./components/Sidebar.jsx";
-import { dashboardAPI, dropdownAPI } from "../utils/api.js";
 
 const AdminClassLog = () => {
   const navigate = useNavigate();
@@ -26,8 +26,7 @@ const AdminClassLog = () => {
   // Modal state for Excel import
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedProdi, setSelectedProdi] = useState("");
-  const [programStudies, setProgramStudies] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("BMM");
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
@@ -83,20 +82,6 @@ const AdminClassLog = () => {
     }
   };
 
-  // Fetch program studies
-  useEffect(() => {
-    const fetchProgramStudies = async () => {
-      try {
-        const response = await dropdownAPI.getProgramStudies();
-        setProgramStudies(response.data || []);
-      } catch (error) {
-        console.error("Error fetching program studies:", error);
-      }
-    };
-
-    fetchProgramStudies();
-  }, []);
-
   const getStatusColor = (status) => {
     return status === "active" ? "text-green-600" : "text-gray-500";
   };
@@ -118,18 +103,14 @@ const AdminClassLog = () => {
       alert("Please select an Excel file first");
       return;
     }
-    if (!selectedProdi) {
-      alert("Please select a program study");
-      return;
-    }
 
     setImporting(true);
     try {
       const formData = new FormData();
       formData.append("excelFile", selectedFile);
-      formData.append("nama_prodi", selectedProdi);
+      formData.append("templateType", selectedTemplate);
 
-      const result = await dashboardAPI.bulkImportMahasiswa(formData);
+      const result = await dashboardAPI.importMahasiswa(formData);
       if (result.success) {
         setImportResult(result.data);
         alert(
@@ -229,25 +210,6 @@ const AdminClassLog = () => {
                   style={{ backgroundColor: "#048494" }}
                 >
                   Import Mahasiswa Excel
-                </button>
-                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center space-x-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                    />
-                  </svg>
-                  <span>Filters</span>
-                </button>
-                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
-                  Download all
                 </button>
               </div>
             </div>
@@ -480,7 +442,7 @@ const AdminClassLog = () => {
                   onClick={() => {
                     setShowImportModal(false);
                     setSelectedFile(null);
-                    setSelectedProdi("");
+                    setSelectedTemplate("BMM");
                     setImportResult(null);
                   }}
                   className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600"
@@ -508,23 +470,24 @@ const AdminClassLog = () => {
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Pilih Program Studi
+                    Pilih Template Excel
                   </label>
                   <select
-                    value={selectedProdi}
-                    onChange={(e) => setSelectedProdi(e.target.value)}
+                    value={selectedTemplate}
+                    onChange={(e) => setSelectedTemplate(e.target.value)}
                     className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
-                    <option value="">Pilih Program Studi</option>
-                    {programStudies.map((prodi) => (
-                      <option key={prodi.nama_prodi} value={prodi.nama_prodi}>
-                        {prodi.nama_prodi} - {prodi.kepanjangan_prodi}
-                      </option>
-                    ))}
+                    <option value="BMM">
+                      Template BMM (Broadband Multimedia)
+                    </option>
+                    <option value="TL">Template TL (Teknik Listrik)</option>
+                    <option value="TOLI">
+                      Template TOLI (Teknik Otomasi Listrik Industri)
+                    </option>
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Program studi tempat mahasiswa akan didaftarkan.
+                    Pilih template sesuai format file excel yang akan diimport
                   </p>
                 </div>
 
@@ -576,7 +539,7 @@ const AdminClassLog = () => {
                     onClick={() => {
                       setShowImportModal(false);
                       setSelectedFile(null);
-                      setSelectedProdi("");
+                      setSelectedTemplate("BMM");
                       setImportResult(null);
                     }}
                     className="w-full sm:flex-1 py-2.5 px-4 bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors font-medium"

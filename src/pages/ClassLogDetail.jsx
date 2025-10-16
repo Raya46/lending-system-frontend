@@ -132,7 +132,7 @@ const ClassLogDetail = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <div className="text-sm text-gray-500">Lecturer</div>
                 <div className="font-medium text-gray-900">
@@ -161,7 +161,7 @@ const ClassLogDetail = () => {
           </div>
 
           {/* statistics card */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg"></div>
@@ -205,45 +205,79 @@ const ClassLogDetail = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead>
+                <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th>Student</th>
-                    <th>NIM</th>
-                    <th>Item</th>
-                    <th>Status</th>
-                    <th>Last Borrow Time</th>
-                    <th>Borrow Count</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Student
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NIM
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Item
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Borrow Time
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Borrow Count
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {borrowers.length > 0 ? (
                     borrowers.map((borrower, index) => (
-                      <tr key={borrower.nim || index}>
-                        <td>{borrower.student_name}</td>
-                        <td>{borrower.nim}</td>
-                        <td>
+                      <tr
+                        key={borrower.nim || index}
+                        className="hover:bg-gray-50"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {borrower.student_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {borrower.nim}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {borrower.unreturned_items ||
                             borrower.returned_items ||
                             "No Items"}
                         </td>
-                        <td>
-                          {borrower.borrower_type === "active_borrower"
-                            ? "active"
-                            : "inactive"}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span
+                            className={`font-medium ${
+                              borrower.borrower_type === "active_borrower"
+                                ? "text-green-600"
+                                : "text-gray-600"
+                            }`}
+                          >
+                            {borrower.borrower_type === "active_borrower"
+                              ? "Active"
+                              : "Inactive"}
+                          </span>
                         </td>
-                        <td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {borrower.last_borrow_time
                             ? new Date(
                                 borrower.last_borrow_time
                               ).toLocaleString()
                             : "N/A"}
                         </td>
-                        <td>{borrower.number_of_times_borrowing || 0} times</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {borrower.number_of_times_borrowing || 0} times
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6}>No borrowers found for this class</td>
+                      <td
+                        colSpan={6}
+                        className="px-6 py-8 text-center text-gray-500"
+                      >
+                        No borrowers found for this class
+                      </td>
                     </tr>
                   )}
                 </tbody>

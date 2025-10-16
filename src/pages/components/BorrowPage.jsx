@@ -1,9 +1,10 @@
 // Borrow Modal
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSocket } from "../../utils/socket";
 import { borrowAPI } from "../../utils/api";
+import { useSocket } from "../../utils/socket";
 import StudentLendModal from "./StudentLendModal";
+import LectureLendModal from "./LecturerLendModal";
 
 export default function BorrowPage() {
   const navigate = useNavigate();
@@ -19,8 +20,10 @@ export default function BorrowPage() {
   useEffect(() => {
     if (borrowerData?.nim_mahasiswa) {
       joinStudentRoom(borrowerData.nim_mahasiswa);
+    } else if (borrowerData?.nip_dosen) {
+      joinStudentRoom(borrowerData.nip_dosen);
     }
-  }, [borrowerData?.nim_mahasiswa, joinStudentRoom]);
+  }, [borrowerData, joinStudentRoom]);
 
   useEffect(() => {
     // listener fro borrow request acceptance
@@ -61,26 +64,46 @@ export default function BorrowPage() {
 
   const handleBorrowSubmit = async (formData) => {
     try {
-      const response = await borrowAPI.submitRequest({
-        nama_mahasiswa: formData.nama_mahasiswa,
-        nim_mahasiswa: formData.nim_mahasiswa,
+      const requestData = {
         nama_dosen: formData.nama_dosen,
         kelas: formData.kelas,
         nama_prodi: formData.nama_prodi,
         jadwal_id: formData.jadwal_id,
         waktu_pengembalian_dijanjikan: formData.waktu_pengembalian_dijanjikan,
         id_barang: formData.id_barang,
-      });
+      };
 
-      setBorrowerData({
-        nama_mahasiswa: formData.nama_mahasiswa,
-        nim_mahasiswa: formData.nim_mahasiswa,
-      });
+      if (modalType === "student") {
+        requestData.nama_mahasiswa = formData.nama_mahasiswa;
+        requestData.nim_mahasiswa = formData.nim_mahasiswa;
+      } else if (modalType === "lecturer") {
+        requestData.nama_dosen = formData.nama_dosen;
+        requestData.nip_dosen = formData.nip_dosen;
+      }
+
+      const response = await borrowAPI.submitRequest(requestData);
+
+      if (modalType === "student") {
+        setBorrowerData({
+          nama_mahasiswa: formData.nama_mahasiswa,
+          nim_mahasiswa: formData.nim_mahasiswa,
+        });
+      } else if (modalType === "lecturer") {
+        setBorrowerData({
+          nama_dosen: formData.nama_dosen,
+          nip_dosen: formData.nip_dosen,
+        });
+        joinStudentRoom(formData.nip_dosen);
+      }
+
       setCurrentTransaction(response.data);
+
       setLendModal(false);
       setWaitingForAcceptance(true);
 
-      alert(`Permintaan peminjaman berhasil di ajukan!`);
+      const borrowerText = modalType === "lecturer" ? "dosen" : "mahasiswa";
+
+      alert(`Permintaan peminjaman berhasil diajukan untuk ${borrowerText}`);
     } catch (error) {
       console.error("Error submiting borrow request: ", error);
       alert("Gagal mengajukan permintaan peminjaman");
@@ -89,14 +112,25 @@ export default function BorrowPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <StudentLendModal
-        isOpen={lendModal}
-        onClose={() => navigate("/")}
-        onSubmit={handleBorrowSubmit}
-        borrowerData={borrowerData}
-        modalType={modalType}
-        setModalType={setModalType}
-      />
+      {modalType === "lecturer" ? (
+        <LectureLendModal
+          isOpen={lendModal}
+          onClose={() => navigate("/")}
+          onSubmit={handleBorrowSubmit}
+          borrowerData={borrowerData}
+          modalType={modalType}
+          setModalType={setModalType}
+        />
+      ) : (
+        <StudentLendModal
+          isOpen={lendModal}
+          onClose={() => navigate("/")}
+          onSubmit={handleBorrowSubmit}
+          borrowerData={borrowerData}
+          modalType={modalType}
+          setModalType={setModalType}
+        />
+      )}
 
       {/* waiting for admin acceptance */}
       {waitingForAcceptance && currentTransaction && (
@@ -133,11 +167,15 @@ export default function BorrowPage() {
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Nama: </strong>
-                    {borrowerData?.nama_mahasiswa}
+                    {borrowerData?.nama_mahasiswa || borrowerData?.nama_dosen}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>NIM: </strong>
-                    {borrowerData?.nim_mahasiswa}
+                    <strong>{borrowerData.nip_dosen ? "NIP" : "NIM"} </strong>
+                    {borrowerData?.nim_mahasiswa || borrowerData?.nip_dosen}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <strong>Pengajuan oleh: </strong>
+                    {borrowerData?.nim_mahasiswa ? "Mahasiswa" : "Dosen"}
                   </p>
                 </div>
                 <button
@@ -185,11 +223,15 @@ export default function BorrowPage() {
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Nama: </strong>
-                    {borrowerData?.nama_mahasiswa}
+                    {borrowerData?.nama_mahasiswa || borrowerData.nama_dosen}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>NIM: </strong>
-                    {borrowerData?.nim_mahasiswa}
+                    <strong>{borrowerData.nip_dosen ? "NIP" : "NIM"} </strong>
+                    {borrowerData?.nim_mahasiswa || borrowerData.nip_dosen}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <strong>Pengajuan oleh: </strong>
+                    {borrowerData?.nim_mahasiswa ? "Mahasiswa" : "Dosen"}
                   </p>
                 </div>
               </div>

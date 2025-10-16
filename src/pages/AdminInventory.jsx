@@ -13,17 +13,6 @@ const AdminInventory = () => {
   const itemsPerPage = 10;
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({
-    barcode: "",
-    tipe_nama_barang: "",
-    brand: "",
-    model: "",
-    serial_number: "",
-    deskripsi: "",
-    status: "tersedia",
-    tanggal_pembelian: "",
-    letak_barang: "",
-  });
 
   const fetchInventoryData = async () => {
     try {
@@ -51,33 +40,14 @@ const AdminInventory = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      barcode: "",
-      tipe_nama_barang: "",
-      brand: "",
-      model: "",
-      serial_number: "",
-      deskripsi: "",
-      status: "tersedia",
-      tanggal_pembelian: "",
-      letak_barang: "",
-    });
+  const handleModalSuccess = () => {
+    fetchInventoryData();
+    setEditingItem(null);
   };
 
   const handleEdit = (item) => {
     setEditingItem(item);
-    setFormData({
-      barcode: item.barcode || "",
-      tipe_nama_barang: item.tipe_nama_barang || "",
-      brand: item.brand || "",
-      model: item.model || "",
-      serial_number: item.serial_number || "",
-      deskripsi: item.deskripsi || "",
-      status: item.status || "",
-      tanggal_pembelian: item.tanggal_pembelian || "",
-      letak_barang: item.letak_barang || "",
-    });
+
     setShowModal(true);
   };
 
@@ -137,8 +107,8 @@ const AdminInventory = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="p-6 flex items-center justify-center h-64">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auo"></div>
-                <p className="mt-4 text-gray-600"></p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading inventory data...</p>
               </div>
             </div>
           </div>
@@ -181,30 +151,10 @@ const AdminInventory = () => {
             style={{ backgroundColor: "#048494" }}
             onClick={() => {
               setEditingItem(null);
-              resetForm();
               setShowModal(true);
             }}
           >
             Add Product
-          </button>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center space-x-2">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-              />
-            </svg>
-            <span>Filters</span>
-          </button>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
-            Download all
           </button>
         </div>
       </div>
@@ -334,18 +284,15 @@ const AdminInventory = () => {
           <InventoryContent />
         </div>
       </div>
-      {/* Modal for adding/editing inventory item */}
-      {showModal && (
-        <InventoryModal
-          isOpen={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setEditingItem(null);
-          }}
-          editingItem={editingItem}
-          onSuccess={() => window.location.reload()}
-        />
-      )}
+      <InventoryModal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setEditingItem(null);
+        }}
+        editingItem={editingItem}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   );
 };

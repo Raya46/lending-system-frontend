@@ -1,6 +1,6 @@
-import React from "react";
 import { useState } from "react";
 import { inventoryAPI } from "../../utils/api";
+import { useEffect } from "react";
 
 export default function InventoryModal({
   isOpen,
@@ -9,15 +9,62 @@ export default function InventoryModal({
   onSuccess,
 }) {
   const [inventoryFormData, setInventoryFormData] = useState({
-    barcode: editingItem?.barcode || "",
-    tipe_nama_barang: editingItem?.tipe_nama_barang || "",
-    brand: editingItem?.brand || "",
-    model: editingItem?.model || "",
-    serial_number: editingItem?.serial_number || "",
-    deskripsi: editingItem?.deskripsi || "",
-    tanggal_pembelian: editingItem?.tanggal_pembelian || "",
-    letak_barang: editingItem?.letak_barang || "",
+    barcode: "",
+    tipe_nama_barang: "",
+    brand: "",
+    model: "",
+    serial_number: "",
+    deskripsi: "",
+    status: "tersedia",
+    tanggal_pembelian: "",
+    letak_barang: "",
   });
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error("Error formattin date: ", error);
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    if (editingItem) {
+      setInventoryFormData({
+        barcode: editingItem?.barcode || "",
+        tipe_nama_barang: editingItem?.tipe_nama_barang || "",
+        brand: editingItem?.brand || "",
+        model: editingItem?.model || "",
+        serial_number: editingItem?.serial_number || "",
+        deskripsi: editingItem?.deskripsi || "",
+        status: editingItem?.status || "tersedia",
+        tanggal_pembelian:
+          formatDateForInput(editingItem?.tanggal_pembelian) || "",
+        letak_barang: editingItem?.letak_barang || "",
+      });
+    } else {
+      setInventoryFormData({
+        barcode: "",
+        tipe_nama_barang: "",
+        brand: "",
+        model: "",
+        serial_number: "",
+        deskripsi: "",
+        status: "tersedia",
+        tanggal_pembelian: "",
+        letak_barang: "",
+      });
+    }
+  }, [editingItem]);
 
   const handleInventoryInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +82,7 @@ export default function InventoryModal({
       model: "",
       serial_number: "",
       deskripsi: "",
+      status: "tersedia",
       tanggal_pembelian: "",
       letak_barang: "",
     });
@@ -156,12 +204,12 @@ export default function InventoryModal({
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Location
+                Letak barang
               </label>
               <input
                 type="text"
-                name="location"
-                value={inventoryFormData.location}
+                name="letak_barang"
+                value={inventoryFormData.letak_barang}
                 onChange={handleInventoryInputChange}
                 placeholder="e.g., Lab komputer 1"
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md"
@@ -224,7 +272,7 @@ export default function InventoryModal({
               </button>
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-white text-gray-700 border border-gray-300 rounded-md font-medium"
+                className="w-full py-2.5 px-4 bg-white text-white border border-gray-300 rounded-md font-medium"
                 style={{ backgroundColor: "#048494" }}
               >
                 {editingItem ? "Update item " : "Create item"}

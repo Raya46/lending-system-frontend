@@ -149,15 +149,6 @@ const AdminDashboard = () => {
             >
               Add Product
             </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
-              Filters
-            </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
-              Download all
-            </button>
-            <button className="text-blue-600 text-sm font-medium hover:text-blue-700">
-              See All
-            </button>
           </div>
         </div>
 

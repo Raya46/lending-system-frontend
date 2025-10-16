@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { borrowAPI } from "../../utils/api";
 
@@ -12,8 +12,12 @@ export default function BarcodeScannerModal({
   const [scannedItem, setScannedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const inputRef = useRef(null);
+  const scanTimeoutRef = useRef(null);
 
-  const handleScan = async () => {
+  const handleScan = async (scannedBarcode = null) => {
+    const barcodeToScan = scannedBarcode || barcode;
     if (!barcode.trim()) {
       setError("Please enter a barcode");
       return;
@@ -22,13 +26,15 @@ export default function BarcodeScannerModal({
     setError(null);
 
     try {
-      const response = await borrowAPI.scanBarcode(barcode);
+      const response = await borrowAPI.scanBarcode(barcodeToScan);
       setScannedItem(response.data);
+      setBarcode(barcodeToScan);
     } catch (error) {
       console.error("Error scanning barcode: ", error);
       setError(error.response?.data?.message || "failed to scan barcode");
     } finally {
       setLoading(false);
+      setIsScanning(false);
     }
   };
 
@@ -60,7 +66,68 @@ export default function BarcodeScannerModal({
     setBarcode("");
     setScannedItem(null);
     setError(null);
+    setIsScanning(false);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
+
+  // handle hardware scanner input
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = () => {
+      // clear any existing timeout
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
+
+      // start scanning mode when a key is pressed in the input
+      if (document.activeElement === inputRef.current) {
+        setIsScanning(true);
+
+        scanTimeoutRef.current = setTimeout(() => {
+          if (barcode.trim() && isScanning) {
+            handleScan(barcode);
+          }
+        }, 500); //wait 500ms after the last keystrok to scan
+      }
+    };
+
+    const handlekeyUp = (e) => {
+      if (e.key === "Enter" && document.activeElement === inputRef.current) {
+        if (scanTimeoutRef.current) {
+          clearTimeout(scanTimeoutRef.current);
+        }
+        if (barcode.trim()) {
+          handleScan(barcode);
+        }
+      }
+    };
+
+    // focus the input when modal opens
+    if (inputRef.current && !scannedItem) {
+      inputRef.current.focus();
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handlekeyUp);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handlekeyUp);
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
+    };
+  }, [isOpen, barcode, isScanning, scannedItem]);
+
+  // refocus input when resetting
+  useEffect(() => {
+    if (!scannedItem && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [scannedItem]);
 
   if (!isOpen) return null;
 
@@ -86,14 +153,22 @@ export default function BarcodeScannerModal({
                   Barcode
                 </label>
                 <input
+                  ref={inputRef}
                   type="text"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="Enter or scan barcode"
-                  className="w-full px-3 py-2.5 border-gray-300 rounded-md"
+                  className={`w-full px-3 py-2.5 border-gray-300 rounded-md ${
+                    isScanning ? "ring-2 ring-blue-500 border-blue-500" : ""
+                  }`}
                   onKeyPress={(e) => e.key === "Enter" && handleScan()}
                 />
               </div>
+              {isScanning && (
+                <div className="text-xs text-blue-600 mt-1">
+                  Scanning... Hardware scanner detected
+                </div>
+              )}
               {error && <div className="text-red-600 text-sm">{error}</div>}
               <div className="flex space-x-3 pt-4">
                 <button

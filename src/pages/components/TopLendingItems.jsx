@@ -5,9 +5,6 @@ export default function TopLendingItems({ topLendingItems }) {
         <h2 className="text-xl font-semibold text-gray-900">
           Top Lending Items
         </h2>
-        <button className="text-blue-600 text-sm font-medium hover:text-blue-700">
-          See All
-        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-48">

@@ -114,27 +114,6 @@ const AdminHistoryLog = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">History Log</h1>
-        <div className="flex items-center space-x-3">
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center space-x-2">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-              />
-            </svg>
-            <span>Filters</span>
-          </button>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
-            Download all
-          </button>
-        </div>
       </div>
 
       {/* Table */}
@@ -168,10 +147,10 @@ const AdminHistoryLog = () => {
                     className="hover:bg-gray-50"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.nama_mahasiswa}
+                      {item.nama_peminjam}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.tipe_nama_barang}
+                      {item.tipe_nama_barang || "Barang tidak dipilih"}
                       {item.notes_checkout &&
                         (() => {
                           try {

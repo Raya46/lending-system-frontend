@@ -56,7 +56,16 @@ export const dashboardAPI = {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: formData,
-    }).then((response) => response.json());
+    }).then((response) => {
+      if (!response.ok) {
+        return response.json().then((data) => {
+          throw new Error(
+            data.message || `HTTP error! status: ${response.status}`
+          );
+        });
+      }
+      return response.json();
+    });
   },
 };
 
