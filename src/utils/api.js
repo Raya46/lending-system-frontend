@@ -17,7 +17,13 @@ export const apiCall = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      console.error("JSON parse error", error, "Response text", text);
+    }
     if (!response.ok) {
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }

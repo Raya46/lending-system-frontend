@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { dropdownAPI } from "../../utils/api";
+import { useState, useEffect } from "react";
+import { dropdownAPI, inventoryAPI } from "../../utils/api.js";
 
 const StudentLendModal = ({
   isOpen,
@@ -16,7 +15,7 @@ const StudentLendModal = ({
   const [programStudies, setProgramStudies] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [availableItems, setAvailableItems] = useState([]);
-  const [selectedSchedule, setSelectedSchedule] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   const [formData, setFormData] = useState({
     nama_mahasiswa: borrowerData?.nama_mahasiswa || "",
@@ -29,37 +28,38 @@ const StudentLendModal = ({
     id_barang: "",
   });
 
-  const loadDropdownData = async () => {
-    console.log("halo");
-    try {
-      const [
-        lecturersResponse,
-        classesResponse,
-        programStudiesResponses,
-        schedulesResponses,
-        availableItemsResponses,
-      ] = await Promise.all([
-        dropdownAPI.getLecturers(),
-        dropdownAPI.getClasses(),
-        dropdownAPI.getProgramStudies(),
-        dropdownAPI.getActive(),
-        dropdownAPI.getAvailable(),
-      ]);
-
-      setLecturers(lecturersResponse.data);
-      setMataKuliah(classesResponse.data);
-      setProgramStudies(programStudiesResponses.data);
-      setSchedules(schedulesResponses.data);
-      setAvailableItems(availableItemsResponses.data);
-      console.log(lecturersResponse);
-    } catch (error) {
-      console.error("Error loading dropdown data: ", error);
-    }
-  };
-
+  // Load dropdown data
   useEffect(() => {
-    loadDropdownData();
-  }, []);
+    const loadDropdownData = async () => {
+      try {
+        const [
+          lecturersResponse,
+          classesResponse,
+          programStudiesResponse,
+          schedulesResponse,
+          availableItemsResponse,
+        ] = await Promise.all([
+          dropdownAPI.getLecturers(),
+          dropdownAPI.getClasses(),
+          dropdownAPI.getProgramStudies(),
+          dropdownAPI.getActive(),
+          inventoryAPI.getAvailable(),
+        ]);
+
+        setLecturers(lecturersResponse.data || []);
+        setMataKuliah(classesResponse.data || []);
+        setProgramStudies(programStudiesResponse.data || []);
+        setSchedules(schedulesResponse.data || []);
+        setAvailableItems(availableItemsResponse.data || []);
+      } catch (error) {
+        console.error("Error loading dropdown data:", error);
+      }
+    };
+
+    if (isOpen) {
+      loadDropdownData();
+    }
+  }, [isOpen]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -178,14 +178,14 @@ const StudentLendModal = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Student Name
+                Nama Mahasiswa
               </label>
               <input
                 type="text"
                 name="nama_mahasiswa"
                 value={formData.nama_mahasiswa}
                 onChange={handleInputChange}
-                placeholder="Enter student name"
+                placeholder="Masukkan nama mahasiswa"
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
@@ -193,14 +193,14 @@ const StudentLendModal = ({
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Student ID (NIM)
+                NIM Mahasiswa
               </label>
               <input
                 type="text"
                 name="nim_mahasiswa"
                 value={formData.nim_mahasiswa}
                 onChange={handleInputChange}
-                placeholder="Enter student ID"
+                placeholder="Masukkan NIM mahasiswa"
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
@@ -217,7 +217,7 @@ const StudentLendModal = ({
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               >
-                <option value="">Pilih Nama Dosen</option>
+                <option value="">Pilih dosen</option>
                 {lecturers.map((lecturer) => (
                   <option key={lecturer.nip} value={lecturer.nama_dosen}>
                     {lecturer.nama_dosen}
@@ -228,7 +228,7 @@ const StudentLendModal = ({
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Class
+                Mata Kuliah
               </label>
               <select
                 name="kelas"
@@ -237,7 +237,7 @@ const StudentLendModal = ({
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               >
-                <option value="">Pilih Kelas</option>
+                <option value="">Pilih mata kuliah</option>
                 {mataKuliah.map((mk) => (
                   <option key={mk.id_kelas} value={mk.nama_kelas}>
                     {mk.nama_kelas}
@@ -268,7 +268,7 @@ const StudentLendModal = ({
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Item yang dipinjam
+                Item yang Dipinjam
               </label>
               <select
                 name="id_barang"
@@ -280,46 +280,16 @@ const StudentLendModal = ({
                 <option value="">Pilih item yang akan dipinjam</option>
                 {availableItems.map((item) => (
                   <option key={item.id_barang} value={item.id_barang}>
-                    {item.tipe_nama_barang} - {item.brand} {item.model}
+                    {item.tipe_nama_barang} - {item.brand} {item.model} (SN:{" "}
+                    {item.serial_number})
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Quantity
-              </label>
-              <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleInputChange}
-                placeholder="Enter quantity"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-                min="1"
-              />
-            </div> */}
-
-            {/* <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Room Number
-              </label>
-              <input
-                type="text"
-                name="roomNumber"
-                value={formData.roomNumber}
-                onChange={handleInputChange}
-                placeholder="Enter room number"
-                className="w-full px-3 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div> */}
-
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Jadwal mulai
+                Jadwal Mulai
               </label>
               <select
                 onChange={(e) => handleScheduleSelect(e.target.value)}
@@ -329,7 +299,7 @@ const StudentLendModal = ({
                 <option value="">Pilih jadwal mulai</option>
                 {schedules.map((schedule) => (
                   <option key={schedule.id_jadwal} value={schedule.id_jadwal}>
-                    {schedule.hari_dalam_seminggu} {schedule.waktu_mulai} -{" "}
+                    {schedule.hari_dalam_seminggu} {schedule.waktu_mulai}-
                     {schedule.waktu_berakhir} | {schedule.nama_kelas} |{" "}
                     {schedule.nama_dosen}
                   </option>
@@ -371,7 +341,7 @@ const StudentLendModal = ({
                 onClick={onClose}
                 className="w-full sm:flex-1 py-2.5 px-4 bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors font-medium"
               >
-                Cancel
+                Batal
               </button>
               <button
                 type="submit"

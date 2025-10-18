@@ -28,7 +28,10 @@ export default function PendingRequests({
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Borrower Name
+                  Borrower
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Item Requested
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Program Studi
@@ -58,6 +61,21 @@ export default function PendingRequests({
                       {request.nim
                         ? `NIM: ${request.nim}`
                         : `NIP: ${request.nip}`}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {request.item_name || "Item not specified"}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {request.item_brand && request.item_model
+                        ? `${request.item_brand} ${request.item_model}`
+                        : request.item_brand || request.item_model || ""}
+                      {request.item_barcode && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          (Barcode: {request.item_barcode})
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -119,7 +137,7 @@ export default function PendingRequests({
                           </button>
                         ) : (
                           <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
-                            waiting for student
+                            waiting for borrower
                           </span>
                         )
                       ) : null}

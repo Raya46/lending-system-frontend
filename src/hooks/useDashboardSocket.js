@@ -31,8 +31,12 @@ export const useDashboardSocket = (
           ) || [],
       }));
       // show notif that student has arrived and item ready for barcode scan
+      const borrowerType =
+        data.borrower_type === "lecturer" ? "Dosen" : "Mahasiswa";
+      const borrowerName =
+        data.borrower_name || data.nama_peminjam || "Tidak diketahui";
       alert(
-        `Mahasiswa ${data.student_name} telah tiba. Siap untuk scan barcode`
+        `${borrowerType} ${borrowerName} telah tiba. Siap untuk scan barcode`
       );
     });
 

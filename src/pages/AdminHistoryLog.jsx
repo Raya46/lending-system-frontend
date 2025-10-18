@@ -93,7 +93,7 @@ const AdminHistoryLog = () => {
       socket?.off("new_borrow_request");
       socket?.off("request_processed");
       socket?.off("borrow_auto_rejected");
-      socket?.off("direct_lending_completion");
+      socket?.off("direct_lending_completed");
       socket?.off("items_overdue");
       socket?.off("item_returned");
     };
@@ -156,7 +156,7 @@ const AdminHistoryLog = () => {
                           try {
                             const notes = JSON.parse(item.notes_checkout);
                             return (
-                              notes.direct_adming_lending && (
+                              notes.direct_admin_lending && (
                                 <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
                                   Direct Admin
                                 </span>
@@ -263,20 +263,22 @@ const AdminHistoryLog = () => {
   }
 
   if (error) {
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 flex items-center justify-center h-64">
-            <div className="text-center">
-              <p>Failed to load history log</p>
-              <p>{error}</p>
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 flex items-center justify-center h-64">
+              <div className="text-center">
+                <p>Failed to load history log</p>
+                <p>{error}</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>;
+    );
   }
 
   return (

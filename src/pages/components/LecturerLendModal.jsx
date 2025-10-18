@@ -16,6 +16,7 @@ const LectureLendModal = ({
   const [schedules, setSchedules] = useState([]);
   const [availableItems, setAvailableItems] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+
   const [formData, setFormData] = useState({
     nama_dosen: borrowerData?.nama_dosen || "",
     nip_dosen: borrowerData?.nip_dosen || "",
@@ -51,7 +52,7 @@ const LectureLendModal = ({
     };
 
     if (isOpen) {
-      loadDropdownData;
+      loadDropdownData();
     }
   }, [isOpen]);
 
