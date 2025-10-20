@@ -1,18 +1,20 @@
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
-import { borrowAPI } from "../../utils/api";
+import { borrowAPI, dashboardAPI } from "../../utils/api";
 
 export default function BarcodeScannerModal({
   isOpen,
   onClose,
   transactionId,
   onSuccess,
+  mode = "borrow", // "borrow" or "return"
 }) {
   const [barcode, setBarcode] = useState("");
   const [scannedItem, setScannedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [notes, setNotes] = useState("");
   const inputRef = useRef(null);
   const scanTimeoutRef = useRef(null);
 
@@ -26,9 +28,17 @@ export default function BarcodeScannerModal({
     setError(null);
 
     try {
-      const response = await borrowAPI.scanBarcode(barcodeToScan);
-      setScannedItem(response.data);
-      setBarcode(barcodeToScan);
+      if (mode === "return") {
+        // For return mode, we don't need to scan the item first
+        // Just validate that the barcode exists
+        setScannedItem({ barcode: barcodeToScan });
+        setBarcode(barcodeToScan);
+      } else {
+        // Original borrow mode logic
+        const response = await borrowAPI.scanBarcode(barcodeToScan);
+        setScannedItem(response.data);
+        setBarcode(barcodeToScan);
+      }
     } catch (error) {
       console.error("Error scanning barcode: ", error);
       setError(error.response?.data?.message || "failed to scan barcode");
@@ -43,20 +53,26 @@ export default function BarcodeScannerModal({
 
     try {
       setLoading(true);
-      await borrowAPI.completeTransaction(transactionId, {
-        item_id: scannedItem.id_barang,
-        waktu_pengembalian: new Date(
-          Date.now() + 24 * 60 * 60 * 1000
-        ).toISOString(),
-      });
 
-      onSuccess && onSuccess();
+      if (mode === "return") {
+        // Return mode - call return item API
+        await dashboardAPI.returnItemByBarcode(scannedItem.barcode, notes);
+        onSuccess && onSuccess(scannedItem.barcode);
+      } else {
+        // Original borrow mode logic
+        await borrowAPI.completeTransaction(transactionId, {
+          item_id: scannedItem.id_barang,
+          waktu_pengembalian: new Date(
+            Date.now() + 24 * 60 * 60 * 1000
+          ).toISOString(),
+        });
+        onSuccess && onSuccess();
+      }
+
       onClose();
     } catch (error) {
-      console.error("Error completing transaction: ", error);
-      setError(
-        error.response?.data?.message || "Failed to complete transaction"
-      );
+      console.error("Error processing action: ", error);
+      setError(error.response?.data?.message || `Failed to ${mode} item`);
     } finally {
       setLoading(false);
     }
@@ -137,7 +153,9 @@ export default function BarcodeScannerModal({
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">
-              Scan barcode
+              {mode === "return"
+                ? "Return Item - Scan Barcode"
+                : "Scan barcode"}
             </h2>
             <button
               onClick={onClose}
@@ -185,26 +203,50 @@ export default function BarcodeScannerModal({
             <div className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-md p-4">
                 <h3 className="text-sm font-medium text-green-800 mb-2">
-                  Item found
+                  {mode === "return" ? "Barcode Ready" : "Item found"}
                 </h3>
                 <div className="space-y-1 text-sm text-green-700">
-                  <p>
-                    <strong>Name: </strong> {scannedItem.tipe_nama_barang}
-                  </p>
-                  <p>
-                    <strong>Brand: </strong> {scannedItem.brand}
-                  </p>
-                  <p>
-                    <strong>Model: </strong> {scannedItem.model}
-                  </p>
-                  <p>
-                    <strong>Barcode: </strong> {scannedItem.barcode}
-                  </p>
-                  <p>
-                    <strong>Status: </strong> {scannedItem.status}
-                  </p>
+                  {mode === "return" ? (
+                    <p>
+                      <strong>Barcode: </strong> {scannedItem.barcode}
+                    </p>
+                  ) : (
+                    <>
+                      <p>
+                        <strong>Name: </strong> {scannedItem.tipe_nama_barang}
+                      </p>
+                      <p>
+                        <strong>Brand: </strong> {scannedItem.brand}
+                      </p>
+                      <p>
+                        <strong>Model: </strong> {scannedItem.model}
+                      </p>
+                      <p>
+                        <strong>Barcode: </strong> {scannedItem.barcode}
+                      </p>
+                      <p>
+                        <strong>Status: </strong> {scannedItem.status}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
+
+              {mode === "return" && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Notes (Optional)
+                  </label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Add any notes about the return"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows="3"
+                  />
+                </div>
+              )}
+
               {error && <div className="text-red-600 text-sm">{error}</div>}
               <div className="flex space-x-3 pt-4">
                 <button
@@ -217,9 +259,15 @@ export default function BarcodeScannerModal({
                   onClick={handleConfirm}
                   disabled={loading}
                   className="flex-1 py-2.5 px-4 text-white rounded-md transition-all font-medium disabled:opacity-50"
-                  style={{ backgroundColor: "#048494" }}
+                  style={{
+                    backgroundColor: mode === "return" ? "#10b981" : "#048494",
+                  }}
                 >
-                  {loading ? "Processing..." : "Confirm"}
+                  {loading
+                    ? "Processing..."
+                    : mode === "return"
+                    ? "Return Item"
+                    : "Confirm"}
                 </button>
               </div>
             </div>

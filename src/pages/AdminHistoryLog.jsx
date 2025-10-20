@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
+import BarcodeScannerModal from "./components/BarcodeScannerModal";
 import { useSocket } from "../utils/socket.jsx";
 import { dashboardAPI } from "../utils/api";
 
@@ -11,7 +12,10 @@ const AdminHistoryLog = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage] = useState(10);
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [notes, setNotes] = useState("");
 
   // function to fetch history log data
   const fetchHistoryData = async () => {
@@ -37,6 +41,35 @@ const AdminHistoryLog = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleReturnItem = (transaction) => {
+    setSelectedTransactionId(transaction.peminjaman_id);
+    setIsReturnModalOpen(true);
+    setNotes("");
+  };
+
+  const handleReturnSuccess = async (barcode) => {
+    try {
+      // Call the return item API with barcode
+      await dashboardAPI.returnItemByBarcode(barcode, notes);
+
+      // Refresh the history data after successful return
+      fetchHistoryData();
+
+      // Close modal
+      setIsReturnModalOpen(false);
+      setSelectedTransactionId(null);
+      setNotes("");
+    } catch (error) {
+      console.error("Error returning item:", error);
+      // Handle error if needed
+    }
+  };
+
+  const handleCloseReturnModal = () => {
+    setIsReturnModalOpen(false);
+    setSelectedTransactionId(null);
   };
 
   // fetch history log data on mount and when page changes
@@ -137,6 +170,9 @@ const AdminHistoryLog = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -199,12 +235,22 @@ const AdminHistoryLog = () => {
                           : item.status_peminjaman}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {item.status_peminjaman === "dipinjam" && (
+                        <button
+                          onClick={() => handleReturnItem(item)}
+                          className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                        >
+                          Return Item
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     No borrow requests found
@@ -290,6 +336,15 @@ const AdminHistoryLog = () => {
           <HistoryLogContent />
         </div>
       </div>
+
+      {/* Return Item Modal */}
+      <BarcodeScannerModal
+        isOpen={isReturnModalOpen}
+        onClose={handleCloseReturnModal}
+        transactionId={selectedTransactionId}
+        onSuccess={handleReturnSuccess}
+        mode="return"
+      />
     </div>
   );
 };

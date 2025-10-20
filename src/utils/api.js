@@ -73,6 +73,31 @@ export const dashboardAPI = {
       return response.json();
     });
   },
+  returnItemByTransaction: (transactionId, notes) =>
+    apiCall("/admin/return-item-by-transaction", {
+      method: "POST",
+      body: JSON.stringify({ transactionId, notes }),
+    }),
+  returnItemByBarcode: (barcode, notes) => {
+    const token = localStorage.getItem("token");
+    return fetch("http://localhost:3000/api/admin/return-item", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ barcode, notes }),
+    }).then((response) => {
+      if (!response.ok) {
+        return response.json().then((data) => {
+          throw new Error(
+            data.message || `HTTP error! status: ${response.status}`
+          );
+        });
+      }
+      return response.json();
+    });
+  },
 };
 
 export const borrowAPI = {

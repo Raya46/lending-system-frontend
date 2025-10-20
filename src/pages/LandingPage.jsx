@@ -5,21 +5,23 @@ import { useNavigate } from "react-router-dom";
 export default function LandingPage() {
   const navigate = useNavigate();
   const PNJLogo = () => (
-    <>
+    <div className="flex items-center justify-center">
       <img
         src="./src/assets/PEENJE.png"
-        className="w-1000 h-1000 md:w-100 md:h-100 items-center justify-center"
+        className="w-48 h-48 md:w-64 md:h-64 object-contain"
+        alt="PEENJE Logo"
       />
-    </>
+    </div>
   );
 
   const InventoryIcon = () => (
-    <>
+    <div className="flex items-center justify-center mb-4">
       <img
         src="./src/assets/PEENJE.png"
-        className="w-10 h-10 md:w-18 md:h-18 object-contain mx-auto"
+        className="w-12 h-12 md:w-16 md:h-16 object-contain"
+        alt="Inventory Icon"
       />
-    </>
+    </div>
   );
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 md:p-8">

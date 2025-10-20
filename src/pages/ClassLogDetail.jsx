@@ -24,9 +24,42 @@ const ClassLogDetail = () => {
         const response = await classAPI.getClassDetails(id);
         const data = response.data;
 
+        // Debug: log the data structure
+        console.log("API Response:", data);
+        console.log("Borrowers data:", data.borrowers);
+        console.log("Statistics:", data.statistics);
+
         // set class data from class_info
         const classInfo = data.class_info;
         const stats = data.statistics;
+
+        // Ensure statistics are numbers, not arrays or objects
+        const totalBorrowers = Array.isArray(stats.total_borrowers)
+          ? stats.total_borrowers.length
+          : typeof stats.total_borrowers === "object" &&
+            stats.total_borrowers !== null
+          ? Object.keys(stats.total_borrowers).length
+          : Number(stats.total_borrowers) || 0;
+
+        const activeBorrowers = Array.isArray(stats.active_borrowers)
+          ? stats.active_borrowers.length
+          : typeof stats.active_borrowers === "object" &&
+            stats.active_borrowers !== null
+          ? Object.keys(stats.active_borrowers).length
+          : Number(stats.active_borrowers) || 0;
+
+        const completedBorrowers = Array.isArray(stats.completed_borrowers)
+          ? stats.completed_borrowers.length
+          : typeof stats.completedBorrowers === "object" &&
+            stats.completedBorrowers !== null
+          ? Object.keys(stats.completedBorrowers).length
+          : Number(stats.completedBorrowers) || 0;
+
+        console.log("Processed stats:", {
+          totalBorrowers,
+          activeBorrowers,
+          completedBorrowers,
+        });
 
         setClassData({
           id: id,
@@ -34,12 +67,46 @@ const ClassLogDetail = () => {
           lecturer: classInfo.lecturers,
           room: classInfo.rooms,
           schedule: classInfo.schedules,
-          totalBorrowers: stats.total_borrowers,
-          activeBorrowers: stats.active_borrowers,
-          completedBorrowers: stats.completed_borrowers,
+          totalBorrowers: totalBorrowers,
+          activeBorrowers: activeBorrowers,
+          completedBorrowers: completedBorrowers,
         });
 
-        setBorrowers(data.borrowers);
+        // Process borrowers to ensure all fields are strings
+        const processedBorrowers = (data.borrowers || []).map((borrower) => {
+          console.log("Processing borrower:", borrower);
+          return {
+            student_name:
+              typeof borrower.student_name === "string"
+                ? borrower.student_name
+                : "Unknown",
+            nim: typeof borrower.nim === "string" ? borrower.nim : "N/A",
+            number_of_times_borrowing:
+              typeof borrower.number_of_times_borrowing === "number"
+                ? borrower.number_of_times_borrowing
+                : 0,
+            returned_items:
+              typeof borrower.returned_items === "string"
+                ? borrower.returned_items
+                : "No returned items",
+            unreturned_items:
+              typeof borrower.unreturned_items === "string"
+                ? borrower.unreturned_items
+                : "No active items",
+            borrower_type:
+              typeof borrower.borrower_type === "string"
+                ? borrower.borrower_type
+                : "inactive_borrower",
+            last_borrow_time: borrower.last_borrow_time,
+            active_loans:
+              typeof borrower.active_loans === "number"
+                ? borrower.active_loans
+                : 0,
+          };
+        });
+
+        console.log("Processed borrowers:", processedBorrowers);
+        setBorrowers(processedBorrowers);
       } catch (error) {
         console.error("Error fetching class details:", error);
         setError(error.message);
@@ -136,25 +203,25 @@ const ClassLogDetail = () => {
               <div>
                 <div className="text-sm text-gray-500">Lecturer</div>
                 <div className="font-medium text-gray-900">
-                  {classData.lecturer}
+                  {String(classData.lecturer || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Room</div>
                 <div className="font-medium text-gray-900">
-                  {classData.room}
+                  {String(classData.room || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Schedule</div>
                 <div className="font-medium text-gray-900">
-                  {classData.schedule}
+                  {String(classData.schedule || "N/A")}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Total Borrower</div>
                 <div className="font-medium text-gray-900">
-                  {classData.totalBorrowers}
+                  {String(classData.totalBorrowers || 0)}
                 </div>
               </div>
             </div>
@@ -168,7 +235,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Active Borrowers</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.activeBorrowers}
+                    {String(classData.activeBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -179,7 +246,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Completed</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.completedBorrowers}
+                    {String(classData.completedBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -190,7 +257,7 @@ const ClassLogDetail = () => {
                 <div className="ml-4">
                   <div className="text-sm text-gray-500">Total items</div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {classData.totalBorrowers}
+                    {String(classData.totalBorrowers || 0)}
                   </div>
                 </div>
               </div>
@@ -229,47 +296,65 @@ const ClassLogDetail = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {borrowers.length > 0 ? (
-                    borrowers.map((borrower, index) => (
-                      <tr
-                        key={borrower.nim || index}
-                        className="hover:bg-gray-50"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {borrower.student_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {borrower.nim}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {borrower.unreturned_items ||
-                            borrower.returned_items ||
-                            "No Items"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span
-                            className={`font-medium ${
-                              borrower.borrower_type === "active_borrower"
-                                ? "text-green-600"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            {borrower.borrower_type === "active_borrower"
-                              ? "Active"
-                              : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {borrower.last_borrow_time
-                            ? new Date(
-                                borrower.last_borrow_time
-                              ).toLocaleString()
-                            : "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {borrower.number_of_times_borrowing || 0} times
-                        </td>
-                      </tr>
-                    ))
+                    borrowers.map((borrower, index) => {
+                      // Debug: log each borrower during render
+                      console.log("Rendering borrower:", borrower);
+
+                      return (
+                        <tr
+                          key={borrower.nim || index}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {String(borrower.student_name || "Unknown")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {String(borrower.nim || "N/A")}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
+                            {borrower.unreturned_items &&
+                            borrower.unreturned_items !== "No active items"
+                              ? String(borrower.unreturned_items)
+                              : borrower.returned_items &&
+                                borrower.returned_items !== "No returned items"
+                              ? String(borrower.returned_items)
+                              : "No Items"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span
+                              className={`font-medium ${
+                                String(borrower.borrower_type) ===
+                                "active_borrower"
+                                  ? "text-green-600"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {String(borrower.borrower_type) ===
+                              "active_borrower"
+                                ? "Active"
+                                : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {borrower.last_borrow_time
+                              ? new Date(
+                                  borrower.last_borrow_time
+                                ).toLocaleString("id-ID", {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {String(borrower.number_of_times_borrowing || 0)}{" "}
+                            times
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td
